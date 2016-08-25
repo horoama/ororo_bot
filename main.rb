@@ -9,7 +9,6 @@ class Ororo
         keys = JSON.load(key_file)
 	@tweets=JSON.load File.read("./tweets.json", :encoding => Encoding::UTF_8)
         @client = Twitter::REST::Client.new do |config|
-
             config.consumer_key     = keys['key']
             config.consumer_secret  = keys['secret']
             config.access_token      = keys['token']
@@ -30,9 +29,9 @@ class Ororo
 
 
     def tweet (text, options={})
-	puts options
-	puts text
-        #@client.update(text, options)
+        @client.update(text, options)
+	rescue => e
+	    puts e.message
     end
 
     def run_stream
@@ -40,14 +39,17 @@ class Ororo
 	puts "start stream"
 	@userstream.user do |ob|
 	    id = nil
-	    if ob.is_a?(Twitter::Tweet) && !ob.retweet?
-		id = ob.id
-		if ob.in_reply_to_screen_name == "ororo_bot"
-		    tweet(text, :in_reply_to_status_id => id)
-		elsif ob.text.include?("吐")
-		    @client.favorite(id)
-		end
-	    end
+            if ob.is_a?(Twitter::Tweet) && !ob.retweet?
+        	id = ob.id
+        	if ob.text.include?("吐") && ob.user.screen_name !="ororo_bot"
+        	    @client.favorite(id)
+        	    #rnd = Random.new(@tweets[:reply].length)
+        	    #@tweets[:reply][rnd]
+        	elsif ob.text.include?("オロロちゃん")
+		    puts "hoge"
+        	    #tweet("@#{ob.user.screen_name} なんや言うことあるんか?", in_reply_to_status_id: id)
+        	end
+            end
 	end
 	}
     end
