@@ -63,7 +63,14 @@ class Ororo
     end
 
     def regular_tweet interval
+	puts "starting regular tweet"
 	loop do
+	    rnd = rand(@tweets["regular"].length)
+	    text = @tweets["regular"][rnd]
+	    puts text
+	    puts Time.now
+	    tweet(text)
+	    run_stream unless stream_is_alive?
 	    sleep interval
 	end
     end
@@ -71,4 +78,4 @@ end
 
 ororo = Ororo.new()
 ororo.run_stream
-ororo.regular_tweet 10
+#ororo.regular_tweet 60*60*3
